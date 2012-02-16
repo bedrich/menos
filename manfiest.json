@@ -1,0 +1,6 @@
+[global]
+	path = /Users/mysterion/src/san/
+	min = false
+
+[less]
+	less/main.less = css/main.css
