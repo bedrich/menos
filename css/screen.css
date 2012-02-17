@@ -1,2 +1,12 @@
-body{background:#ff0000;}
-.screenless{background:"#fff";}
+body {
+  font: normal normal 12px/20px Verdana, sans-serif;
+}
+.screenless {
+  background: "#fff";
+}
+.coolbeans {
+  color: red;
+}
+.rocket {
+  background: blue;
+}

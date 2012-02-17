@@ -1,9 +1,0 @@
-{
-	"compress": true,
-	"lesspath": "/Users/mysterion/src/san/less/",
-	"csspath": "/Users/mysterion/src/san/css/",
-	"less": [
-		"screen.less:screen.css",
-		"main.less:main.css"
-	]
-}

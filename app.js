@@ -18,26 +18,35 @@ function main (filename) {
 		console.error(e);
 	}
 	
-	parseLess(manifest.lesspath, manifest.csspath, manifest.less, manifest.compress);
+	if (process.argv[3] === '--watch') {
+		watchLess(manifest);
+	} else {
+		parseLess(manifest.lesspath, manifest.csspath, manifest.less, manifest.compress);
+	}
+}
+
+function watchLess (manifest) {
+	// Watch multiple files
 }
 
 function parseLess (lessPath, cssPath, lessFiles, compress) {
-	var parser = new (less.Parser)({
-		paths: [lessPath]
+	var parser = new (less.Parser)({ 
+		paths: [lessPath] 
 	});
-	var iFiles = lessFiles.length;
+	var len = lessFiles.length;
 	var opts = { compress: compress ? true : false };
-	var lessFile;
 	var files;
+	var lessFile;
 	
-	while (iFiles--) {
-		files = lessFiles[iFiles].split(':');
+	while (len--) {
+		files = lessFiles[len].split(':');
 		lessFile = fs.readFileSync(lessPath + files[0], "utf-8");
 		
 		parser.parse(lessFile, function (err, tree) {
 		    if (err) { 
 				return console.error(err);
 			} else {
+				console.log('[' + files[1] + '] was successfully parsed.');
 				fs.writeFileSync(cssPath + files[1], tree.toCSS(opts));
 			}
 		});

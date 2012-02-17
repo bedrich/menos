@@ -1,1 +1,13 @@
-body{background:#ff0000;}
+body {
+  background: #ff0000;
+}
+.cars {
+  color: #ff0000;
+  text-align: left;
+}
+.something {
+  font-weight: bold;
+}
+.maintest {
+  color: #ff0000;
+}
