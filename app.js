@@ -1,69 +1,45 @@
 var less = require("less");
 var fs = require("fs");
-var manifestFile;
 
-try {
-	fs.stat(process.argv[2], function(err, stats) {
-		if (err) {
-			throw "Manifest files does not exist.";
-		} else {
-			main(process.argv[2]);
-		}
-	});
-} catch (e) {
-	console.log(e);
-}
+fs.stat(process.argv[2], function(err, stats) {
+	if (err) {
+		console.error("\n\"" + process.argv[2] + "\" was not found.\n\n", err);
+	} else {
+		main(process.argv[2]);
+	}
+});
 
 function main (filename) {
-	var manifestString = fs.readFileSync(filename, "utf-8");
-	var manifestJson = manifestToJson(manifestString);
+	var manifest;
 	
-	parseLess(manifestJson);
+	try {
+		manifest = JSON.parse(fs.readFileSync(filename, "utf-8"));
+	} catch (e) {
+		console.error(e);
+	}
+	
+	parseLess(manifest.lesspath, manifest.csspath, manifest.less, manifest.compress);
 }
 
-function parseLess (pref) {
-	var parser = new (less.Parser);
-	var path = pref.global.path;
-	var lessFiles = pref.less;
+function parseLess (lessPath, cssPath, lessFiles, compress) {
+	var parser = new (less.Parser)({
+		paths: [lessPath]
+	});
+	var iFiles = lessFiles.length;
+	var opts = { compress: compress ? true : false };
 	var lessFile;
+	var files;
 	
-	for (var filename in lessFiles) {
-		lessFile = fs.readFileSync(path + filename, "utf-8");
-		cssFile = path + lessFiles[filename];
+	while (iFiles--) {
+		files = lessFiles[iFiles].split(':');
+		lessFile = fs.readFileSync(lessPath + files[0], "utf-8");
 		
 		parser.parse(lessFile, function (err, tree) {
 		    if (err) { 
 				return console.error(err);
+			} else {
+				fs.writeFileSync(cssPath + files[1], tree.toCSS(opts));
 			}
-			
-			fs.writeFileSync(cssFile, tree.toCSS());
 		});
 	}
-}
-
-function manifestToJson (str) {
-	var strArr = str.split('\n');
-	var prefs = {};
-	var currentPref;
-	var trimmed;
-	
-	for (var i = 0, len = strArr.length; i < len; i++) {
-		trimmed = strArr[i].trim();
-		
-		if (trimmed != '') {
-			strArr[i] = trimmed;
-		
-			if (trimmed.charAt(0) === '[') {
-				currentPref = trimmed.substring(1, trimmed.length-1);
-				prefs[currentPref] = {};
-			} else if (currentPref) {
-				var key = trimmed.split('=')[0].trim();
-				var val = trimmed.split('=')[1].trim();
-			
-				prefs[currentPref][key] = val;
-			}
-		}
-	}
-	
-	return prefs;
 }
