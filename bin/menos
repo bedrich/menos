@@ -56,7 +56,7 @@ function parseLess (settings) {
 			if (err) {
 				return console.error(err);
 			} else {
-				console.log('★ [' + lessFile + '] was successfully parsed.')
+				console.log('★ [' + lessFile + '] was successfully parsed.');
 				fs.writeFileSync(cssFile, tree.toCSS(opts));
 
 				// Any more files to parse?
