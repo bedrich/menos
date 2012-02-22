@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 
-var less = require("less");
-var fs = require("fs");
+var less = require('less');
+var fs = require('fs');
 
 // Does file exist?
 fs.stat(process.argv[2], function(err, stats) {
 	if (err) {
-		console.error("\n\"" + process.argv[2] + "\" was not found.\n\n", err);
+		console.error('✖ ' + process.argv[2] + ' was not found.', err);
 	} else {
 		main(process.argv[2]);
 	}
@@ -16,7 +16,7 @@ function main (filename) {
 	var manifest;
 
 	try {
-		manifest = JSON.parse(fs.readFileSync(filename, "utf-8"));
+		manifest = JSON.parse(fs.readFileSync(filename, 'utf-8'));
 	} catch (e) {
 		console.error(e);
 	}
@@ -24,7 +24,7 @@ function main (filename) {
 	if (process.argv[3] === '--watch') {
 		watchLess(manifest);
 	} else {
-		parseLess(manifest.lesspath, manifest.csspath, manifest.less, manifest.compress);
+		parseLess(manifest);
 	}
 }
 
@@ -32,26 +32,30 @@ function watchLess (manifest) {
 	// Watch multiple files
 }
 
-function parseLess (lessPath, cssPath, lessFiles, compress) {
-	var parser = new (less.Parser)({
-		paths: [lessPath]
-	});
-	var len = lessFiles.length;
-	var opts = { compress: compress ? true : false };
-	var files;
+function parseLess (settings) {
+	var parser = new (less.Parser)({ 'paths': [settings.paths.less] });
+	var opts = { 'compress': false };
+	var cssPath = settings.paths.css;
+	var cssFile;
 	var lessFile;
+	var lessBody;
 
-	while (len--) {
-		files = lessFiles[len].split(':');
-		lessFile = fs.readFileSync(lessPath + files[0], "utf-8");
+	if (settings.compress) {
+		cssPath = settings.paths.min;
+		opts = { compress: true };
+	}
 
-		parser.parse(lessFile, function (err, tree) {
+	for (var i = 0, len = settings.files.length; i < len; i++) {
+		lessFile = settings.paths.less + settings.files[i]['less'] + '.less';
+		lessBody = fs.readFileSync(lessFile, 'utf-8');
+		cssFile = cssPath + settings.files[i]['css'] + '.css';
 
+		parser.parse(lessBody, function (err, tree) {
 			if (err) {
 				return console.error(err);
 			} else {
-				console.log('[' + files[0] + '] was successfully parsed.');
-				fs.writeFileSync(cssPath + files[1], tree.toCSS(opts));
+				console.log('★ [' + lessFile + '] was successfully parsed.')
+				fs.writeFileSync(cssFile, tree.toCSS(opts));
 			}
 		});
 	}

@@ -1,8 +1,0 @@
-{
-	"compress": false,
-	"lesspath": "less/",
-	"csspath": "css/",
-	"less": [
-		"example.less:example.css"
-	]
-}
