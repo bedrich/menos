@@ -33,22 +33,24 @@ function watchLess (manifest) {
 }
 
 function parseLess (settings) {
-	var parser = new (less.Parser)({ 'paths': [settings.paths.less] });
-	var opts = { 'compress': false };
 	var cssPath = settings.paths.css;
-	var cssFile;
-	var lessFile;
-	var lessBody;
+	var opts = { 'compress': false };
 
 	if (settings.compress) {
 		cssPath = settings.paths.min;
 		opts = { compress: true };
 	}
 
-	for (var i = 0, len = settings.files.length; i < len; i++) {
-		lessFile = settings.paths.less + settings.files[i]['less'] + '.less';
-		lessBody = fs.readFileSync(lessFile, 'utf-8');
-		cssFile = cssPath + settings.files[i]['css'] + '.css';
+	// Do we have files to parse?
+	if (settings.files.length > 0) {
+		_parse(0);
+	}
+
+	function _parse(i) {
+		var parser = new (less.Parser)({ 'paths': [settings.paths.less] });
+		var cssFile = settings.paths.css + settings.files[i].css + '.css';
+		var lessFile = settings.paths.less + settings.files[i].less + '.less';
+		var lessBody = fs.readFileSync(lessFile, 'utf-8');
 
 		parser.parse(lessBody, function (err, tree) {
 			if (err) {
@@ -56,6 +58,11 @@ function parseLess (settings) {
 			} else {
 				console.log('★ [' + lessFile + '] was successfully parsed.')
 				fs.writeFileSync(cssFile, tree.toCSS(opts));
+
+				// Any more files to parse?
+				if ((settings.files.length-1) != i) {
+					_parse(i+1);
+				}
 			}
 		});
 	}
