@@ -1,0 +1,9 @@
+{
+	"author": "Bedrich Rios",
+	"name": "menos",
+	"description": "Simple build system for your LESS files",
+	"version": "0.0.1",
+	"dependencies": {
+		"less": ""
+	}
+}

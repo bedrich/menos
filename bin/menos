@@ -1,5 +1,18 @@
 #!/usr/bin/env node
 
+/*
+	@param {Boolean} [compress=false]
+	@param {String} [path=process.env.HOME]
+	@param {Object} paths
+	@param {String} paths.css
+	@param {String} paths.less
+	@param {String} [paths.min] // Only neeeded if compress=true
+	@param {Array} files
+	@param {Object} files[i]
+	@param {String} files[i].less
+	@param {String} files[i].css
+*/
+
 var less = require('less');
 var fs = require('fs');
 
@@ -33,6 +46,7 @@ function watchLess (manifest) {
 }
 
 function parseLess (settings) {
+	var basePath = settings.path ? settings.path : process.env.HOME;
 	var cssPath = settings.paths.css;
 	var opts = { 'compress': false };
 
@@ -48,8 +62,8 @@ function parseLess (settings) {
 
 	function _parse(i) {
 		var parser = new (less.Parser)({ 'paths': [settings.paths.less] });
-		var cssFile = cssPath + settings.files[i].css + '.css';
-		var lessFile = settings.paths.less + settings.files[i].less + '.less';
+		var cssFile = basePath + '/' + cssPath + settings.files[i].css + '.css';
+		var lessFile = basePath + '/' + settings.paths.less + settings.files[i].less + '.less';
 		var lessBody = fs.readFileSync(lessFile, 'utf-8');
 
 		parser.parse(lessBody, function (err, tree) {
