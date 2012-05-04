@@ -48,10 +48,12 @@ function watchLess (manifest) {
 function parseLess (settings) {
 	var basePath = settings.path ? settings.path : process.env.HOME;
 	var cssPath = settings.paths.css;
+	var cssExt = '.css'
 	var opts = { 'compress': false };
 
 	if (settings.compress) {
 		cssPath = settings.paths.min;
+		cssExt = '.min.css';
 		opts = { compress: true };
 	}
 
@@ -62,7 +64,7 @@ function parseLess (settings) {
 
 	function _parse(i) {
 		var parser = new (less.Parser)({ 'paths': [settings.paths.less] });
-		var cssFile = basePath + '/' + cssPath + settings.files[i].css + '.css';
+		var cssFile = basePath + '/' + cssPath + settings.files[i].css + cssExt;
 		var lessFile = basePath + '/' + settings.paths.less + settings.files[i].less + '.less';
 		var lessBody = fs.readFileSync(lessFile, 'utf-8');
 
