@@ -1,0 +1,6 @@
+{
+	"compress": true,
+	"path_css": "/css",
+	"path_less": "/less",
+	"files": ["main"]
+}

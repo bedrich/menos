@@ -1,0 +1,16 @@
+body {
+  font: normal normal 13px/20px Helvetica, sans-serif;
+}
+.class {
+  color: yellow;
+}
+body {
+  background: red;
+  color: #ffff00;
+}
+body {
+  text-align: center;
+}
+.class {
+  color: blue;
+}

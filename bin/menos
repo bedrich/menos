@@ -1,60 +1,46 @@
 #!/usr/bin/env node
 
-/*
-	@param {Boolean} [compress=false]
-	@param {String} [path=process.env.HOME]
-	@param {Object} paths
-	@param {String} paths.css
-	@param {String} paths.less
-	@param {String} [paths.min] // Only neeeded if compress=true
-	@param {Array} files
-	@param {Object} files[i]
-	@param {String} files[i].less
-	@param {String} files[i].css
-*/
-
 var less = require('less');
 var fs = require('fs');
+var path = require('path');
 
-// Does file exist?
-fs.stat(process.argv[2], function(err, stats) {
-	if (err) {
-		console.error('✖ ' + process.argv[2] + ' was not found.', err);
+// Look for config.json or use specified file
+var config = process.argv[2] ? process.argv[2] : process.env.PWD + '/config.json';
+
+// Does config exist?
+path.exists(config, function(exists) {
+	if (!exists) {
+		console.error('✖ Config file does not exist.');
 	} else {
-		main(process.argv[2]);
+		main();
 	}
 });
 
-function main (filename) {
+function main () {
 	var manifest;
 
 	try {
-		manifest = JSON.parse(fs.readFileSync(filename, 'utf-8'));
+		manifest = JSON.parse(fs.readFileSync(config, 'utf-8'));
 	} catch (e) {
-		console.error(e);
+		util.debug(e);
 	}
 
-	if (process.argv[3] === '--watch') {
-		watchLess(manifest);
-	} else {
-		parseLess(manifest);
-	}
-}
-
-function watchLess (manifest) {
-	// Watch multiple files
+	parseLess(manifest);
 }
 
 function parseLess (settings) {
-	var basePath = settings.path ? settings.path : process.env.HOME;
-	var cssPath = settings.paths.css;
-	var cssExt = '.css'
-	var opts = { 'compress': false };
+	var basePath = settings.path_project || process.env.PWD;
+	var lessPath = basePath + settings.path_less;
+	var cssPath = basePath + settings.path_css;
+	var ext;
+	var opts;
 
 	if (settings.compress) {
-		cssPath = settings.paths.min;
 		cssExt = '.min.css';
-		opts = { compress: true };
+		opts = { compress: true, yuicompress: true };
+	} else {
+		cssExt = '.css';
+		opts = { compress: false };
 	}
 
 	// Do we have files to parse?
@@ -63,17 +49,17 @@ function parseLess (settings) {
 	}
 
 	function _parse(i) {
-		var parser = new (less.Parser)({ 'paths': [settings.paths.less] });
-		var cssFile = basePath + '/' + cssPath + settings.files[i].css + cssExt;
-		var lessFile = basePath + '/' + settings.paths.less + settings.files[i].less + '.less';
+		var parser = new (less.Parser)({ 'paths': [lessPath] });
+		var cssFile = cssPath + '/' + settings.files[i] + cssExt;
+		var lessFile = lessPath + '/' + settings.files[i] + '.less';
 		var lessBody = fs.readFileSync(lessFile, 'utf-8');
 
 		parser.parse(lessBody, function (err, tree) {
 			if (err) {
 				return console.error(err);
 			} else {
-				console.log('★ [' + lessFile + '] was successfully parsed.');
 				fs.writeFileSync(cssFile, tree.toCSS(opts));
+				console.log('★ [' + lessFile + '] was successfully parsed.');
 
 				// Any more files to parse?
 				if ((settings.files.length-1) != i) {
