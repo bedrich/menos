@@ -1,4 +1,5 @@
 {
+	"compress": false,
 	"path_css": "/css",
 	"path_less": "/less",
 	"files": ["main"]

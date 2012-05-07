@@ -22,7 +22,7 @@ function main () {
 	try {
 		manifest = JSON.parse(fs.readFileSync(config, 'utf-8'));
 	} catch (e) {
-		util.debug(e);
+		console.error(e);
 	}
 
 	parseLess(manifest);
