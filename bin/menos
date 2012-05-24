@@ -29,7 +29,7 @@ function main () {
 }
 
 function parseLess (settings) {
-	var basePath = settings.path_project || process.env.PWD;
+	var basePath = settings.path_project.charAt(0) === '~' ? process.env.HOME + settings.path_project.substring(1) : settings.path_project;
 	var lessPath = basePath + settings.path_less;
 	var cssPath = basePath + settings.path_css;
 	var ext;
