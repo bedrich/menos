@@ -7,10 +7,10 @@ var fs = require('fs');
 console.log('Hello, Mr. ' + process.env.LOGNAME + ',');
 
 // Is there a config file?
-fs.exists(process.cwd() + '/menos.json', function (exists) {
+fs.exists(process.cwd() + '/config.json', function (exists) {
 	if (exists) {
-		var config = JSON.parse(fs.readFileSync(process.cwd() + '/menos.json', 'utf-8'));
-		console.log('I found a menos.json file, so I\'ll respect your wishes.\n');
+		var config = JSON.parse(fs.readFileSync(process.cwd() + '/config.json', 'utf-8'));
+		console.log('I found a config.json file, so I\'ll respect your wishes.\n');
 		parseSetup(config);
 	} else {
 		console.log('Parsing files...\n');
@@ -21,8 +21,8 @@ fs.exists(process.cwd() + '/menos.json', function (exists) {
 function parseSetup (config) {
 	var settings = {};
 
-	settings.cssDir = config.path_css || process.cwd() + '/css';
-	settings.lessDir = config.path_less || process.cwd() + '/less';
+	settings.cssDir = config.path_css || process.cwd().slice(0, -5) + '/css'; // removes `/less`
+	settings.lessDir = config.path_less || process.cwd();
 	settings.files = config.files || fs.readdirSync(settings.lessDir);
 
 	// If minify was not set, or is true, assume true
