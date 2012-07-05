@@ -1,6 +1,6 @@
 {
-	"compress": false,
-	"path_css": "/css",
-	"path_less": "/less",
-	"files": ["main"]
+	"minify": false,
+	"path_css": "/path/to/my/css",
+	"path_less": "/path/to/my/less",
+	"files": ["base", "layout", "modules"]
 }
