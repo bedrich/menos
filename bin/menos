@@ -26,7 +26,7 @@ function parseSetup (config) {
 	settings.files = config.files || fs.readdirSync(settings.lessDir);
 
 	// If minify was not set, or is true, assume true
-	if (config.minify === null || config.minify === true) {
+	if (typeof config.minify === 'undefined' || config.minify === true) {
 		settings.minify = true;
 		settings.opts = { compress: true, yuicompress: true };
 		settings.cssExt = '.min.css';
@@ -44,8 +44,9 @@ function parseSetup (config) {
 
 function parseFile (i, settings) {
 		var parser = new (less.Parser)({ 'paths': [settings.lessDir] });
-		var cssFile = settings.files[i] + settings.cssExt;
-		var lessFile = /\.less/.test(settings.files[i]) ? settings.files[i] : settings.files[i] + '.less';
+		var filename = /\.less/.test(settings.files[i]) ? settings.files[i].slice(0, -5) : settings.files[i];
+		var cssFile = filename + settings.cssExt;
+		var lessFile = filename + '.less';
 		var lessBody = fs.readFileSync(settings.lessDir + '/' + lessFile, 'utf-8');
 
 		parser.parse(lessBody, function (err, tree) {
