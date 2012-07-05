@@ -2,40 +2,43 @@
 
 var less = require('less');
 var fs = require('fs');
-var path = require('path');
+var util = require('util');
 
-// Look for config.json or use specified file
-var config = process.argv[2] ? process.argv[2] : process.env.PWD + '/config.json';
+// Say hello
+console.log('Hello, Mr. ' + process.env.LOGNAME + ',');
 
-// Does config exist?
-path.exists(config, function(exists) {
-	if (!exists) {
-		console.error('✖ Config file does not exist.');
+// Is there a config file?
+fs.exists(process.cwd() + '/menos.json', function (exists) {
+	if (exists) {
+		var config = JSON.parse(fs.readFileSync(process.cwd() + '/menos.json', 'utf-8'));
+		console.log('I found a menos.json file, so I\'ll respect your wishes.\n');
+		parseLess(config);
 	} else {
-		main();
+		parseLess();
 	}
 });
 
-function main () {
-	var manifest;
+function getLessFiles (dir, cb) {
+	var filenames = [];
 
-	try {
-		manifest = JSON.parse(fs.readFileSync(config, 'utf-8'));
-	} catch (e) {
-		console.error(e);
-	}
+	fs.readdir(dir, function (err, files) {
+		if (err) throw err;
 
-	parseLess(manifest);
+		for (var i = 0, len = files.length; i < len; i++) {
+			filenames.push(files[i].substring(0, files[i].length - 5));
+		}
+		cb(filenames);
+	});
 }
 
 function parseLess (settings) {
-	var basePath = settings.path_project.charAt(0) === '~' ? process.env.HOME + settings.path_project.substring(1) : settings.path_project;
-	var lessPath = basePath + settings.path_less;
-	var cssPath = basePath + settings.path_css;
-	var ext;
+	var lessDir = process.cwd() + '/less';
+	var cssDir = process.cwd() + '/css';
+	var minify = true;
+	var cssExt;
 	var opts;
 
-	if (settings.compress) {
+	if (minify) {
 		cssExt = '.min.css';
 		opts = { compress: true, yuicompress: true };
 	} else {
@@ -43,28 +46,28 @@ function parseLess (settings) {
 		opts = { compress: false };
 	}
 
-	// Do we have files to parse?
-	if (settings.files.length > 0) {
-		_parse(0);
-	}
+	getLessFiles(lessDir, function (files) {
+		// Do we have files to parse?
+		if (files.length > 0) {
+			_parse(0, files);
+		}
+	});
 
-	function _parse(i) {
-		var parser = new (less.Parser)({ 'paths': [lessPath] });
-		var cssFile = cssPath + '/' + settings.files[i] + cssExt;
-		var lessFile = lessPath + '/' + settings.files[i] + '.less';
-		var lessBody = fs.readFileSync(lessFile, 'utf-8');
+	function _parse(i, files) {
+		var parser = new (less.Parser)({ 'paths': [lessDir] });
+		var cssFile = files[i] + cssExt;
+		var lessFile = files[i] + '.less';
+		var lessBody = fs.readFileSync(lessDir + '/' + lessFile, 'utf-8');
 
 		parser.parse(lessBody, function (err, tree) {
-			if (err) {
-				return console.error(err);
-			} else {
-				fs.writeFileSync(cssFile, tree.toCSS(opts));
-				console.log('★ [' + lessFile + '] was successfully parsed.');
+			if (err) throw err;
 
-				// Any more files to parse?
-				if ((settings.files.length-1) != i) {
-					_parse(i+1);
-				}
+			fs.writeFileSync(cssDir + '/' + cssFile, tree.toCSS(opts));
+			console.log(lessFile + ' ⌁ ' + cssFile);
+
+			// Any more files to parse?
+			if ((files.length - 1) != i) {
+				_parse(i + 1, files);
 			}
 		});
 	}

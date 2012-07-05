@@ -1,16 +1,13 @@
-body {
-  font: normal normal 13px/20px Helvetica, sans-serif;
-}
-.class {
-  color: yellow;
+.class-3 {
+  display: inline;
 }
 body {
-  background: red;
+  background: #008000;
   color: #ffff00;
 }
-body {
-  text-align: center;
+.class-1 {
+  display: block;
 }
-.class {
-  color: blue;
+.class-2 {
+  display: none;
 }
