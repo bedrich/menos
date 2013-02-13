@@ -4,7 +4,7 @@
 	"description": "Simple build system for your LESS files",
 	"version": "0.2.0",
 	"dependencies": {
-		"less": "1.3.0"
+		"less": "1.3.3"
 	},
 	"engines": {
 		"node": "0.8.1",
